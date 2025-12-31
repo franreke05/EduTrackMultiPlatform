@@ -1,3 +1,5 @@
+@file:OptIn(org.jetbrains.compose.resources.ExperimentalResourceApi::class)
+
 package com.franciscor.edutrackmultiplatform.ui
 
 import androidx.compose.animation.core.Animatable
