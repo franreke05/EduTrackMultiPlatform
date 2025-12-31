@@ -1,9 +1,0 @@
-<resources>
-    <string name="app_name">edutrack</string>
-    <string name="title_activity_splash_screen">EduTrack</string>
-    <string name="title_activity_splash_screem">EduTrack</string>
-    <string name="title_activity_registro">RegistroActivity</string>
-    <string name="title_activity_registrar_usuario">RegistrarUsuarioActivity</string>
-    <string name="title_activity_edu_track">EduTrack</string>
-    <string name="title_activity_inicio">InicioActivity</string>
-</resources>
