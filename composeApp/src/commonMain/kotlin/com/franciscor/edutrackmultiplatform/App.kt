@@ -1,49 +1,59 @@
 package com.franciscor.edutrackmultiplatform
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.franciscor.edutrackmultiplatform.data.LoginResult
+import com.franciscor.edutrackmultiplatform.data.RegisterResult
+import com.franciscor.edutrackmultiplatform.data.UserRepository
+import com.franciscor.edutrackmultiplatform.model.Usuario
+import com.franciscor.edutrackmultiplatform.ui.HomeScreen
+import com.franciscor.edutrackmultiplatform.ui.LoginScreen
+import com.franciscor.edutrackmultiplatform.ui.SignUpScreen
+import com.franciscor.edutrackmultiplatform.ui.SplashScreen
+import com.franciscor.edutrackmultiplatform.ui.theme.EduTrackTheme
 
-import edutrackmultiplatform.composeapp.generated.resources.Res
-import edutrackmultiplatform.composeapp.generated.resources.compose_multiplatform
+sealed class Screen {
+    data object Splash : Screen()
+    data object Login : Screen()
+    data object SignUp : Screen()
+    data class Home(val user: Usuario) : Screen()
+}
 
 @Composable
-@Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+    val repository = remember { UserRepository() }
+    var screen by remember { mutableStateOf<Screen>(Screen.Splash) }
+
+    EduTrackTheme {
+        when (val current = screen) {
+            Screen.Splash -> SplashScreen(onTimeout = { screen = Screen.Login })
+            Screen.Login -> LoginScreen(
+                onLogin = { email, password ->
+                    val result = repository.login(email, password)
+                    if (result is LoginResult.Success) {
+                        screen = Screen.Home(result.user)
+                    }
+                    result
+                },
+                onSignUp = { screen = Screen.SignUp },
+            )
+            Screen.SignUp -> SignUpScreen(
+                onRegister = { nombre, email, password ->
+                    val result = repository.register(nombre, email, password)
+                    if (result is RegisterResult.Success) {
+                        screen = Screen.Login
+                    }
+                    result
+                },
+                onCancel = { screen = Screen.Login },
+            )
+            is Screen.Home -> HomeScreen(
+                user = current.user,
+                onLogout = { screen = Screen.Login },
+            )
         }
     }
 }
