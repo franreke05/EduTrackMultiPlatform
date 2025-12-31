@@ -32,6 +32,7 @@ kotlin {
     cocoapods {
         summary = "EduTrack Compose Multiplatform shared module"
         homepage = "https://example.com/edutrack"
+        version = "1.0.0"
         ios.deploymentTarget = "14.1"
         podfile = project.file("../iosApp/Podfile")
 
