@@ -39,12 +39,15 @@ sealed class Screen {
 }
 
 @Composable
-fun App() {
+fun App(
+    startScreen: Screen = Screen.Splash,
+    startInRegister: Boolean = false,
+) {
     ensureFirebaseInitialized()
     val repository = remember { UserRepository() }
     var currentUser by remember { mutableStateOf<Usuario?>(null) }
     val anios = remember { mutableStateListOf<Anio>() }
-    val backStack = remember { mutableStateListOf<Screen>(Screen.Splash) }
+    val backStack = remember(startScreen) { mutableStateListOf<Screen>(startScreen) }
     val scope = rememberCoroutineScope()
 
     fun newId(prefix: String): String {
@@ -195,7 +198,13 @@ fun App() {
             currentUser = restored
             anios.clear()
             anios.addAll(restored.anio)
-            resetTo(Screen.Inicio)
+            val target = when (startScreen) {
+                Screen.Splash, Screen.Auth -> Screen.Inicio
+                else -> startScreen
+            }
+            resetTo(target)
+        } else if (startScreen != Screen.Splash && startScreen != Screen.Auth) {
+            resetTo(Screen.Auth)
         }
     }
 
@@ -221,6 +230,7 @@ fun App() {
                     anios.addAll(user.anio)
                     resetTo(Screen.Inicio)
                 },
+                startInRegister = startInRegister,
             )
             Screen.Inicio -> InicioScreen(
                 anios = anios,

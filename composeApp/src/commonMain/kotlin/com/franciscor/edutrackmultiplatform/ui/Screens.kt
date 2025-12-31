@@ -170,8 +170,11 @@ fun AuthScreen(
     onLogin: suspend (String, String) -> LoginResult,
     onRegister: suspend (String, String, String) -> RegisterResult,
     onAuthSuccess: (Usuario) -> Unit,
+    startInRegister: Boolean = false,
 ) {
-    var authMode by remember { mutableStateOf(AuthMode.Login) }
+    var authMode by remember(startInRegister) {
+        mutableStateOf(if (startInRegister) AuthMode.Register else AuthMode.Login)
+    }
     var email by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
