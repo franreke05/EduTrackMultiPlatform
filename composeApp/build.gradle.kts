@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.googleServices)
 }
 
 kotlin {
@@ -24,6 +26,22 @@ kotlin {
             isStatic = true
         }
     }
+
+    cocoapods {
+        summary = "EduTrack Compose Multiplatform shared module"
+        homepage = "https://example.com/edutrack"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+
+        framework {
+            baseName = "ComposeApp"
+            isStatic = true
+        }
+
+        pod("FirebaseCore")
+        pod("FirebaseAuth")
+        pod("FirebaseDatabase")
+    }
     
     sourceSets {
         androidMain.dependencies {
@@ -35,11 +53,16 @@ kotlin {
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)
+            implementation(compose.materialIconsExtended)
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.firebase.app)
+            implementation(libs.firebase.auth)
+            implementation(libs.firebase.database)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -52,7 +75,7 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.franciscor.edutrackmultiplatform"
+        applicationId = "com.example.edutrack"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
