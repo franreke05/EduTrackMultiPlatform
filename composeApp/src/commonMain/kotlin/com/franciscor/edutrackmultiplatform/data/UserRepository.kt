@@ -16,7 +16,7 @@ class UserRepository {
     private val users = mutableListOf<Usuario>()
     private var nextId = 1
 
-    fun login(email: String, password: String): LoginResult {
+    suspend fun login(email: String, password: String): LoginResult {
         val user = users.firstOrNull { it.email.equals(email, ignoreCase = true) && it.password == password }
         return if (user != null) {
             LoginResult.Success(user)
@@ -25,7 +25,7 @@ class UserRepository {
         }
     }
 
-    fun register(nombre: String, email: String, password: String): RegisterResult {
+    suspend fun register(nombre: String, email: String, password: String): RegisterResult {
         if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
             return RegisterResult.Error("Complete all fields")
         }

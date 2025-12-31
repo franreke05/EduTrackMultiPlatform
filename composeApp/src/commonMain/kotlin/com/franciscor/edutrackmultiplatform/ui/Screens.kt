@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,9 +48,10 @@ import com.franciscor.edutrackmultiplatform.data.LoginResult
 import com.franciscor.edutrackmultiplatform.data.RegisterResult
 import com.franciscor.edutrackmultiplatform.model.Usuario
 import edutrackmultiplatform.composeapp.generated.resources.Res
-import edutrackmultiplatform.composeapp.generated.resources.agendita
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SplashScreen(onTimeout: () -> Unit) {
@@ -78,7 +80,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
     ) {
         Image(
             painter = painterResource(Res.drawable.agendita),
-            contentDescription = "Logo",
+            contentDescription = stringResource(Res.string.splash_logo),
             modifier = Modifier
                 .size(200.dp)
                 .scale(scale.value),
@@ -88,12 +90,13 @@ fun SplashScreen(onTimeout: () -> Unit) {
 
 @Composable
 fun LoginScreen(
-    onLogin: (String, String) -> LoginResult,
+    onLogin: suspend (String, String) -> LoginResult,
     onSignUp: () -> Unit,
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
     BoxWithConstraints(
         modifier = Modifier
@@ -123,7 +126,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(screenHeight * 0.2f))
 
             Text(
-                text = "EduTrack",
+                text = stringResource(Res.string.login_title),
                 style = MaterialTheme.typography.headlineLarge,
                 color = Color(0xFF8E9090),
                 modifier = Modifier.padding(bottom = screenHeight * 0.014f),
@@ -145,8 +148,8 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Username") },
-                        placeholder = { Text("Your username") },
+                        label = { Text(stringResource(Res.string.login_username_label)) },
+                        placeholder = { Text(stringResource(Res.string.login_username_placeholder)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -155,8 +158,8 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
-                        placeholder = { Text("Your password") },
+                        label = { Text(stringResource(Res.string.login_password_label)) },
+                        placeholder = { Text(stringResource(Res.string.login_password_placeholder)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
@@ -173,9 +176,11 @@ fun LoginScreen(
             ) {
                 Button(
                     onClick = {
-                        when (val result = onLogin(email, password)) {
-                            is LoginResult.Success -> error = null
-                            is LoginResult.Error -> error = result.message
+                        scope.launch {
+                            when (val result = onLogin(email, password)) {
+                                is LoginResult.Success -> error = null
+                                is LoginResult.Error -> error = result.message
+                            }
                         }
                     },
                     modifier = Modifier
@@ -184,7 +189,7 @@ fun LoginScreen(
                     shape = RoundedCornerShape(25.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BCD4)),
                 ) {
-                    Text("Sign In", color = Color.White)
+                    Text(stringResource(Res.string.login_sign_in), color = Color.White)
                 }
 
                 OutlinedButton(
@@ -194,7 +199,7 @@ fun LoginScreen(
                         .height(screenHeight * 0.06f),
                     shape = RoundedCornerShape(25.dp),
                 ) {
-                    Text("Sign Up", color = Color(0xFF3F51B5))
+                    Text(stringResource(Res.string.login_sign_up), color = Color(0xFF3F51B5))
                 }
             }
 
@@ -210,7 +215,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(screenHeight * 0.286f))
 
             Text(
-                text = "Some text about login information.\nLorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                text = stringResource(Res.string.login_footer),
                 textAlign = TextAlign.Center,
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodyMedium,
@@ -222,13 +227,14 @@ fun LoginScreen(
 
 @Composable
 fun SignUpScreen(
-    onRegister: (String, String, String) -> RegisterResult,
+    onRegister: suspend (String, String, String) -> RegisterResult,
     onCancel: () -> Unit,
 ) {
     var email by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
 
     BoxWithConstraints(
         modifier = Modifier
@@ -254,7 +260,7 @@ fun SignUpScreen(
                     ),
             ) {
                 Text(
-                    text = "Sign Up",
+                    text = stringResource(Res.string.signup_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.White,
                     modifier = Modifier.align(Alignment.Center),
@@ -289,8 +295,8 @@ fun SignUpScreen(
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email") },
-                        placeholder = { Text("Your email") },
+                        label = { Text(stringResource(Res.string.signup_email_label)) },
+                        placeholder = { Text(stringResource(Res.string.signup_email_placeholder)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -299,8 +305,8 @@ fun SignUpScreen(
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
-                        label = { Text("Username") },
-                        placeholder = { Text("Your username") },
+                        label = { Text(stringResource(Res.string.signup_username_label)) },
+                        placeholder = { Text(stringResource(Res.string.signup_username_placeholder)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -309,8 +315,8 @@ fun SignUpScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
-                        placeholder = { Text("Your password") },
+                        label = { Text(stringResource(Res.string.signup_password_label)) },
+                        placeholder = { Text(stringResource(Res.string.signup_password_placeholder)) },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
@@ -327,9 +333,11 @@ fun SignUpScreen(
             ) {
                 Button(
                     onClick = {
-                        when (val result = onRegister(username, email, password)) {
-                            is RegisterResult.Success -> error = null
-                            is RegisterResult.Error -> error = result.message
+                        scope.launch {
+                            when (val result = onRegister(username, email, password)) {
+                                is RegisterResult.Success -> error = null
+                                is RegisterResult.Error -> error = result.message
+                            }
                         }
                     },
                     modifier = Modifier
@@ -341,7 +349,7 @@ fun SignUpScreen(
                 ) {
                     Image(
                         painter = painterResource(Res.drawable.baseline_check_24),
-                        contentDescription = "Create",
+                        contentDescription = stringResource(Res.string.signup_create),
                         modifier = Modifier.size(screenHeight * 0.04f),
                     )
                 }
@@ -357,7 +365,7 @@ fun SignUpScreen(
                 ) {
                     Image(
                         painter = painterResource(Res.drawable.baseline_cancel_24),
-                        contentDescription = "Cancel",
+                        contentDescription = stringResource(Res.string.signup_cancel),
                         modifier = Modifier.size(screenHeight * 0.04f),
                     )
                 }
@@ -375,7 +383,7 @@ fun SignUpScreen(
             Spacer(modifier = Modifier.height(screenHeight * 0.286f))
 
             Text(
-                text = "Some text about login information.\nLorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                text = stringResource(Res.string.login_footer),
                 textAlign = TextAlign.Center,
                 color = Color.Gray,
                 style = MaterialTheme.typography.bodyMedium,
@@ -397,15 +405,15 @@ fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "Welcome, ${user.nombre}",
+            text = stringResource(Res.string.home_welcome, user.nombre),
             style = MaterialTheme.typography.headlineMedium,
         )
         Text(
-            text = "This is the shared home screen.",
+            text = stringResource(Res.string.home_subtitle),
             style = MaterialTheme.typography.bodyLarge,
         )
         Button(onClick = onLogout) {
-            Text("Log out")
+            Text(stringResource(Res.string.home_logout))
         }
     }
 }
